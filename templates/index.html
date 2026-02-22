@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FirstBot</title>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #343541;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #chat-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-row {
+            display: flex;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .message-row.user {
+            justify-content: flex-end;
+        }
+
+        .message-row.bot {
+            justify-content: flex-start;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px;
+            border-radius: 12px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background-color: #0b93f6;
+            color: white;
+        }
+
+        .message.bot {
+            background-color: #444654;
+            color: white;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 15px;
+            background-color: #40414f;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #19c37d;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #17a96b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="chat-container"></div>
+
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') handleSend()">
+        <button onclick="handleSend()">Send</button>
+    </div>
+
+<script>
+function handleSend() {
+    const input = document.getElementById("user-input");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    input.value = "";
+    sendMessage(message);
+}
+
+async function sendMessage(message) {
+    const chatContainer = document.getElementById("chat-container");
+
+    // Show user message
+    addMessage(message, "user");
+
+    // Create bot bubble
+    const botRow = document.createElement("div");
+    botRow.className = "message-row bot";
+
+    const botBubble = document.createElement("div");
+    botBubble.className = "message bot";
+
+    botRow.appendChild(botBubble);
+    chatContainer.appendChild(botRow);
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: message })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let fullText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            fullText += chunk;
+
+            if (typeof marked !== "undefined") {
+                botBubble.innerHTML = marked.parse(fullText);
+            } else {
+                botBubble.innerText = fullText;
+            }
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        botBubble.innerText = "Error getting response.";
+    }
+}
+
+function addMessage(text, sender) {
+    const chatContainer = document.getElementById("chat-container");
+
+    const row = document.createElement("div");
+    row.className = "message-row " + sender;
+
+    const bubble = document.createElement("div");
+    bubble.className = "message " + sender;
+    bubble.innerText = text;
+
+    row.appendChild(bubble);
+    chatContainer.appendChild(row);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
+
+</body>
+</html>
