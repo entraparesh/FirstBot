@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 # -------------------------
-# MEMORY STORE
+# MEMORY STORE How many last messages to remember
 MAX_HISTORY = 10   # total user+assistant messages to keep
 # -------------------------
 
