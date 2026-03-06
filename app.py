@@ -24,7 +24,36 @@ dosha_map = {
     "constipation": "Vata"
 }
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+import os
+
+
+GROQ_API_KEY = "REMOVED_KEY"
+
+def generate_ai_response(prompt):
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.3
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    result = response.json()
+
+    print("Groq response:", result)
+
+    return result["choices"][0]["message"]["content"]
+
 
 # LOGIN PAGE
 @app.route("/")
@@ -112,21 +141,9 @@ Format:
 3.
 4.
 """
-    
-    response = requests.post(
-        OLLAMA_URL,
-        json={
-            "model": "gemma3:4b",
-            "prompt": prompt,
-            "stream": False
-        }
-    )
+    response = generate_ai_response(prompt);
 
-    result = response.json()["response"]
-
-    
-
-    return result
+    return response;
 
 
 if __name__ == "__main__":
