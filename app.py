@@ -27,11 +27,12 @@ dosha_map = {
 import os
 
 
-GROQ_API_KEY = "REMOVED_KEY"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def generate_ai_response(prompt):
 
     url = "https://api.groq.com/openai/v1/chat/completions"
+
 
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -49,8 +50,6 @@ def generate_ai_response(prompt):
     response = requests.post(url, headers=headers, json=data)
 
     result = response.json()
-
-    print("Groq response:", result)
 
     return result["choices"][0]["message"]["content"]
 
