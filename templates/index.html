@@ -1,176 +1,485 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>FirstBot</title>
-    <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #343541;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+<title>NexMind - By Paresh</title>
+<meta charset="UTF-8">
 
-        #chat-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-        .message-row {
-            display: flex;
-            margin-bottom: 15px;
-            width: 100%;
-        }
+<style>
 
-        .message-row.user {
-            justify-content: flex-end;
-        }
+body{
+margin:0;
+font-family:"Segoe UI",Arial;
+background:#f4f6f9;
+height:100vh;
+display:flex;
+flex-direction:column;
+}
 
-        .message-row.bot {
-            justify-content: flex-start;
-        }
+#output{
+width:100%;
+display:flex;
+justify-content:flex-end;
+}
 
-        .message {
-            max-width: 70%;
-            padding: 12px;
-            border-radius: 12px;
-            line-height: 1.4;
-        }
+/* LOGO HEADER */
 
-        .message.user {
-            background-color: #0b93f6;
-            color: white;
-        }
+.logo-header{
+background:white;
+padding:15px;
+text-align:center;
+border-bottom:1px solid #ddd;
+}
 
-        .message.bot {
-            background-color: #444654;
-            color: white;
-        }
+.logo{
+height:100px;
+}
 
-        .input-container {
-            display: flex;
-            padding: 15px;
-            background-color: #40414f;
-        }
+/* TITLE */
 
-        #user-input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-        }
+.header{
+background:#2f855a;
+color:white;
+padding:10px;
+text-align:center;
+font-size:20px;
+font-weight:600;
+}
 
-        button {
-            margin-left: 10px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            background-color: #19c37d;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
+/* MAIN */
 
-        button:hover {
-            background-color: #17a96b;
-        }
-    </style>
+.main{
+flex:1;
+display:flex;
+}
+
+/* LEFT PANEL */
+
+.left-panel{
+width:40%;
+background:#ffffff;
+padding:25px;
+border-right:1px solid #ddd;
+}
+
+.left-panel h3{
+margin-top:0;
+}
+
+.search-area{
+display:flex;
+gap:10px;
+margin-bottom:5px;
+}
+
+#complaint-input{
+border:none;
+outline:none;
+flex:1;
+min-width:120px;
+font-size:12px;
+padding:6px;
+}
+
+/* suggestion box */
+
+#suggestions{
+position:absolute;
+top:100%;
+left:0;
+right:0;
+background:white;
+border:1px solid #ddd;
+border-top:none;
+z-index:10;
+max-height:200px;
+overflow-y:auto;
+}
+
+.suggestion-item{
+padding:8px;
+cursor:pointer;
+}
+
+.suggestion-item:hover{
+background:#f3f3f3;
+}
+
+button{
+padding:10px 18px;
+border-radius:6px;
+border:none;
+background:#2f855a;
+color:white;
+cursor:pointer;
+font-size:15px;
+}
+
+button:hover{
+background:#276749;
+}
+
+/* TAGS */
+
+#complaint-tags{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:15px;
+}
+
+
+
+.tag{
+background:#edf2f7;
+padding:5px 10px;
+border-radius:20px;
+display:flex;
+align-items:center;
+gap:6px;
+font-size:13px;
+border:1px solid #ddd;
+}
+
+.tag span{
+cursor:pointer;
+color:red;
+font-weight:bold;
+}
+
+.tag{
+background:#edf2f7;
+padding:6px 12px;
+border-radius:20px;
+display:flex;
+align-items:center;
+gap:6px;
+font-size:14px;
+border:1px solid #ddd;
+}
+
+.tag span{
+cursor:pointer;
+color:red;
+}
+
+/* RIGHT PANEL */   
+
+.right-panel{
+flex:1;
+padding:30px;
+display:flex;
+justify-content:flex-start;   /* pushes card to right */
+align-items:flex-start;
+overflow-y:auto;
+}
+
+/* PRESCRIPTION */
+
+.prescription{
+width:650px;
+max-width:100%;
+margin-left:auto;
+margin-right:auto;
+}
+
+.form-row{
+display:flex;
+gap:20px;
+align-items:center;
+margin-bottom:20px;
+}
+
+.form-row input,
+.form-row select,
+.tag-input-wrapper{
+width:200px;
+box-sizing:border-box;
+}
+
+.form-row > div,
+.tag-input-wrapper{
+flex:1;
+}
+
+input, select{
+height:36px;
+padding:6px 8px;
+border:1px solid #ccc;
+border-radius:6px;
+font-size:14px;
+}
+
+.prescription-header{
+border-bottom:2px solid #2f855a;
+padding-bottom:10px;
+margin-bottom:20px;
+}
+
+.prescription-title{
+font-size:22px;
+font-weight:600;
+color:#2f855a;
+}
+
+.generate-container{
+width:100%;
+display:flex;
+justify-content:center;
+margin-top:20px;
+}
+
+.tag-input-wrapper{
+position:relative;
+width:100%;
+}
+
+.section-title{
+margin-top:20px;
+font-weight:600;
+color:#333;
+}
+
+#tag-container{
+display:flex;
+flex-wrap:wrap;
+align-items:center;
+gap:6px;
+border:1px solid #ccc;
+border-radius:8px;
+padding:6px;
+min-height:32px;
+background:white;
+}
+
+
+.remedy-text{
+margin-top:10px;
+line-height:1.9;
+font-size:15px;
+}
+
+.footer{
+margin-top:30px;
+border-top:1px dashed #ccc;
+padding-top:10px;
+font-size:13px;
+color:#666;
+text-align:center;
+}
+
+</style>
 </head>
 
 <body>
 
-    <div id="chat-container"></div>
+<div class="logo-header">
+<img src="{{ url_for('static', filename='New.png') }}" class="logo">
+</div>
 
-    <div class="input-container">
-        <input type="text" id="user-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') handleSend()">
-        <button onclick="handleSend()">Send</button>
-    </div>
+<div class="header">
+IndiAyurveda AI Assistant
+</div>
+
+<div class="main">
+
+<!-- LEFT PANEL -->
+
+<div class="left-panel">
+
+<h2>Patient Details</h2>
+
+<div class="form-row">
+
+<label>Complaint</label>
+
+<div class="tag-input-wrapper">
+
+<div id="tag-container">
+<input id="complaint-input" placeholder="Type complaint">
+</div>
+
+<div id="suggestions"></div>
+
+</div>
+
+</div> <!-- CLOSE first form-row -->
+
+<div class="form-row">
+
+<div>
+<label>Age</label>
+<input type="number" id="age" placeholder="Age">
+</div>
+
+<div>
+<label>Season</label>
+<select id="season">
+<option value="">Season</option>
+<option>Winter</option>
+<option>Summer</option>
+<option>Monsoon</option>
+<option>Autumn</option>
+<option>Spring</option>
+</select>
+</div>
+
+</div>
+
+<div class="generate-container">
+<button class="generate-btn" onclick="handleSend()">Generate Prescription</button>
+</div>
+
+
+
+</div>
+
+<!-- RIGHT PANEL -->
+
+<div class="right-panel">
+<div id="output"></div>
+</div>
+
 
 <script>
-function handleSend() {
-    const input = document.getElementById("user-input");
-    const message = input.value.trim();
 
-    if (!message) return;
+let complaints=[]
 
-    input.value = "";
-    sendMessage(message);
+const input=document.getElementById("complaint-input")
+
+/* AUTO SUGGESTION */
+
+input.addEventListener("input", async function(){
+
+const query=input.value.trim()
+
+if(query.length<2){
+document.getElementById("suggestions").innerHTML=""
+return
 }
 
-async function sendMessage(message) {
-    const chatContainer = document.getElementById("chat-container");
+const response=await fetch(`/suggest?q=${query}`)
+const data=await response.json()
 
-    // Show user message
-    addMessage(message, "user");
+const box=document.getElementById("suggestions")
 
-    // Create bot bubble
-    const botRow = document.createElement("div");
-    botRow.className = "message-row bot";
+box.innerHTML=""
 
-    const botBubble = document.createElement("div");
-    botBubble.className = "message bot";
+data.forEach(item=>{
 
-    botRow.appendChild(botBubble);
-    chatContainer.appendChild(botRow);
+box.innerHTML+=`
+<div class="suggestion-item" onclick="selectSuggestion('${item}')">
+${item}
+</div>
+`
 
-    try {
-        const response = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: message })
-        });
+})
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+})
 
-        let fullText = "";
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+function selectSuggestion(value){
 
-            const chunk = decoder.decode(value);
-            fullText += chunk;
-
-            if (typeof marked !== "undefined") {
-                botBubble.innerHTML = marked.parse(fullText);
-            } else {
-                botBubble.innerText = fullText;
-            }
-
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-    } catch (error) {
-        console.error("Error:", error);
-        botBubble.innerText = "Error getting response.";
-    }
+if(!complaints.includes(value)){
+complaints.push(value)
+renderTags()
 }
 
-function addMessage(text, sender) {
-    const chatContainer = document.getElementById("chat-container");
+input.value=""
+document.getElementById("suggestions").innerHTML=""
 
-    const row = document.createElement("div");
-    row.className = "message-row " + sender;
-
-    const bubble = document.createElement("div");
-    bubble.className = "message " + sender;
-    bubble.innerText = text;
-
-    row.appendChild(bubble);
-    chatContainer.appendChild(row);
-
-    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
+
+/* TAG RENDER */
+
+function renderTags(){
+
+const container=document.getElementById("tag-container")
+
+container.innerHTML=""
+
+complaints.forEach((item,index)=>{
+
+const tag=document.createElement("div")
+tag.className="tag"
+
+tag.innerHTML=`${item} <span onclick="removeTag(${index})">×</span>`
+
+container.appendChild(tag)
+
+})
+
+const tagContainer=document.getElementById("tag-container")
+tagContainer.appendChild(input)
+
+}
+
+
+function removeTag(index){
+
+complaints.splice(index,1)
+
+renderTags()
+
+}
+
+
+/* GENERATE PRESCRIPTION */
+
+async function handleSend(){
+
+if(complaints.length===0){
+alert("Please add complaint")
+return
+}
+
+const output=document.getElementById("output")
+
+const age = document.getElementById("age").value
+
+const season = document.getElementById("season").value
+
+output.innerHTML=""
+
+const prescription=document.createElement("div")
+prescription.className="prescription"
+
+prescription.innerHTML=`
+<div class="prescription-header">
+<div class="prescription-title">Ayurvedic Prescription</div>
+</div>
+
+<div class="section-title">Patient Complaints</div>
+<div class="remedy-text">${complaints.join(", ")}</div>
+
+<div class="section-title">Rx (Ayurvedic Remedies)</div>
+<div id="remedy-content" class="remedy-text">
+Generating remedies...
+</div>
+
+`
+
+output.appendChild(prescription)
+
+const response=await fetch("/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+complaints:complaints,
+Age: age,
+Season : season
+})
+})
+
+const text=await response.text()
+
+document.getElementById("remedy-content").innerHTML=marked.parse(text)
+
+}
+
 </script>
 
 </body>

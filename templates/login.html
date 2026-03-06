@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>IndiAyurveda Login</title>
+<meta charset="UTF-8">
+
+<style>
+
+body{
+margin:0;
+font-family:"Segoe UI",Arial;
+background:#f4f6f9;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+background:white;
+padding:40px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,0.1);
+width:350px;
+text-align:center;
+}
+
+.logo{
+height:80px;
+margin-bottom:20px;
+}
+
+h2{
+margin-bottom:20px;
+color:#2f855a;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+margin-bottom:20px;
+border-radius:6px;
+border:1px solid #ccc;
+font-size:14px;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#2f855a;
+border:none;
+border-radius:6px;
+color:white;
+font-size:15px;
+cursor:pointer;
+}
+
+button:hover{
+background:#276749;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<img src="{{ url_for('static', filename='New.png') }}" class="logo">
+
+<h2>Welcome to IndiAyurveda</h2>
+
+<form action="/login" method="POST">
+
+<label>User Type</label>
+<select name="user_type" required>
+<option value="">Select</option>
+<option value="Doctor">Doctor</option>
+<option value="Individual">Individual</option>
+</select>
+
+<label>Email</label>
+<input type="email" name="email" placeholder="Enter Email" required>
+
+<button type="submit">Continue</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

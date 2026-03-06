@@ -1,109 +1,133 @@
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request,redirect, session
 import requests
+import csv
+
+
 import json
 
+with open("complaints.json") as f:
+    complaints_db = json.load(f)
+
 app = Flask(__name__)
+app.secret_key = "indiayurveda"
 
-# -------------------------
-# MEMORY STORE How many last messages to remember
-MAX_HISTORY = 10   # total user+assistant messages to keep
-# -------------------------
 
-conversation = [
-    {"role": "system", "content": "You are a helpful AI assistant."}
-]
+dosha_map = {
+    "allergic cold": "Kapha",
+    "cough": "Kapha",
+    "sinus": "Kapha",
+    "fever": "Pitta",
+    "acidity": "Pitta",
+    "burning": "Pitta",
+    "joint pain": "Vata",
+    "gas": "Vata",
+    "constipation": "Vata"
+}
 
-# -------------------------
-# PROMPT BUILDER
-# -------------------------
+OLLAMA_URL = "http://localhost:11434/api/generate"
 
-def trim_conversation():
-    global conversation
-
-    # Keep system message
-    system_message = conversation[0]
-
-    # Keep only last N messages (excluding system)
-    recent_messages = conversation[1:][-MAX_HISTORY:]
-
-    conversation = [system_message] + recent_messages
-
-def build_prompt():
-    prompt = ""
-    for msg in conversation:
-        if msg["role"] == "system":
-            prompt += msg["content"] + "\n"
-        elif msg["role"] == "user":
-            prompt += "User: " + msg["content"] + "\n"
-        elif msg["role"] == "assistant":
-            prompt += "Assistant: " + msg["content"] + "\n"
-    prompt += "Assistant:"
-    return prompt
-
-# -------------------------
-# STREAMING FUNCTION
-# -------------------------
-
-def stream_from_model(prompt):
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "gemma3:4b",
-            "prompt": prompt,
-            "stream": True
-        },
-        stream=True
-    )
-
-    full_reply = ""
-
-    for chunk in response.iter_content(chunk_size=None):
-        if chunk:
-            data = chunk.decode("utf-8").strip()
-
-            for line in data.split("\n"):
-                if line:
-                    parsed = json.loads(line)
-
-                    if "response" in parsed:
-                        token = parsed["response"]
-                        full_reply += token
-                        yield token
-
-                    if parsed.get("done"):
-                        conversation.append({
-                            "role": "assistant",
-                            "content": full_reply
-                        })
-
-# -------------------------
-# ROUTES
-# -------------------------
-
+# LOGIN PAGE
 @app.route("/")
-def home():
+def login_page():
+    return render_template("login.html")
+
+# LOGIN SUBMIT
+@app.route("/login", methods=["POST"])
+def login():
+
+    user_type = request.form.get("user_type")
+    email = request.form.get("email")
+
+    session["user_type"] = user_type
+    session["email"] = email
+    # Save to CSV file
+    with open("users.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([user_type, email])
+
+
+        return redirect("/prescription")
+
+# MAIN PAGE
+@app.route("/prescription")
+def prescription():
+
+    if "email" not in session:
+        return redirect("/")
+
     return render_template("index.html")
 
+@app.route("/suggest")
+def suggest():
+
+    q = request.args.get("q","").lower()
+
+    result = [c for c in complaints_db if q in c.lower()]
+
+    return result[:10]
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_message = request.json["message"]
 
-    conversation.append({
-        "role": "user",
-        "content": user_message
-    })
+    data = request.json
+    complaints = data.get("complaints")
 
-    trim_conversation()   # 🔥 NEW LINE
+    complaint_text = ", ".join(complaints)
 
-    prompt = build_prompt()
+    patAge = data.get("Age")
 
-    return Response(stream_from_model(prompt),
-                    content_type="text/plain")
 
-# -------------------------
-# START SERVER
-# -------------------------
+    currSeason = data.get("Season")
+
+    
+
+
+    prompt = f"""
+You are an expert Ayurvedic Vaidya.
+
+User complaints: {complaint_text}
+
+User Age : {patAge}
+
+Current season : {currSeason}
+
+User may have multiple complaints. Analyse them together according to Ayurvedic principles (Dosha imbalance) and suggest remedies that are beneficial for all the complaints.
+
+Rules:
+- Give exactly 4 Ayurvedic home remedies
+- Each remedy must be one line
+- Use only simple household ingredients
+- No explanation
+- Output must be strictly in Marathi
+- Do not include English words
+- Do not add extra text
+- Do not use any English words in response.
+- Output strictly in Marathi.
+- Identify the dominant Dosha imbalance (Vata, Pitta, Kapha) using complaints and create section for showing dosha on top of remedies
+
+Format:
+
+1.
+2.
+3.
+4.
+"""
+    
+    response = requests.post(
+        OLLAMA_URL,
+        json={
+            "model": "gemma3:4b",
+            "prompt": prompt,
+            "stream": False
+        }
+    )
+
+    result = response.json()["response"]
+
+    
+
+    return result
+
 
 if __name__ == "__main__":
     app.run(debug=True)
