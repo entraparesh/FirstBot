@@ -104,7 +104,7 @@ def login():
 
     return redirect("/prescription")
 
-@app.route("/users")
+@app.route("/MyUsers2426")
 def users():
 
     conn = sqlite3.connect('users.db')
