@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request,redirect, session
 import requests
 import csv
+import sqlite3
 
 
 import json
@@ -10,6 +11,23 @@ with open("complaints.json") as f:
 
 app = Flask(__name__)
 app.secret_key = "indiayurveda"
+
+def init_db():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_type TEXT,
+        email TEXT
+    )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+init_db()
 
 
 dosha_map = {
@@ -74,7 +92,29 @@ def login():
         writer.writerow([user_type, email])
 
 
-        return redirect("/prescription")
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+
+    c.execute("INSERT INTO users (user_type,email) VALUES (?,?)",
+              (user_type,email))
+
+    conn.commit()
+    conn.close()
+
+
+    return redirect("/prescription")
+
+@app.route("/users")
+def users():
+
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+
+    data = c.execute("SELECT * FROM users").fetchall()
+
+    conn.close()
+
+    return str(data)
 
 # MAIN PAGE
 @app.route("/prescription")
